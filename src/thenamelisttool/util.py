@@ -257,7 +257,8 @@ def compose_namelist(recipe_filename,
                      suffix='.nam',
                      sorting=NO_SORTING,
                      squeeze=False,
-                     fhoutput=None):
+                     fhoutput=None,
+                     returnNamelist=False):
     """
     Compose a namelist from a **recipe_filename**. For the syntax of recipe,
     see template recipe.
@@ -275,6 +276,7 @@ def compose_namelist(recipe_filename,
     :param squeeze: squeeze the namelist: remove empty blocks.
     :param fhoutput: a file object where the result is written (if None, a
                      new file named `basename(recipe_filename)` is created).
+    :param returnNamelist: if true do no write but just return the namelist.
     """
     # read
     recipe = TntRecipe(recipe_filename, sourcenam_directory=sourcenam_directory)
@@ -284,10 +286,13 @@ def compose_namelist(recipe_filename,
         nam.merge(ingredient)
     if squeeze:
         nam.squeeze()
-    # write
-    if fhoutput is None:
-        namelistname = os.path.basename(recipe_filename.replace('.yaml', suffix))
-        with open(namelistname, 'w', encoding='ascii') as fh_namout:
-            fh_namout.write(nam.dumps(sorting=sorting))
+    if returnNamelist:
+        return nam
     else:
-        fhoutput.write(nam.dumps(sorting=sorting))
+    # write
+        if fhoutput is None:
+            namelistname = os.path.basename(recipe_filename.replace('.yaml', suffix))
+            with open(namelistname, 'w', encoding='ascii') as fh_namout:
+                fh_namout.write(nam.dumps(sorting=sorting))
+        else:
+            fhoutput.write(nam.dumps(sorting=sorting))

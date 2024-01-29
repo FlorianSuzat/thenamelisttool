@@ -14,7 +14,6 @@ import sys
 from bronx.fancies import loggers
 from bronx.syntax.decorators import secure_getattr
 from .namadapter import BronxNamelistAdapter
-
 tntlog = loggers.getLogger('tntlog')
 
 # Detect TNT's configuration files directory
@@ -363,7 +362,12 @@ class TntRecipe:
                 # external namelist
                 if self.sourcenam_directory:
                     ingredient = os.path.join(self.sourcenam_directory, ingredient)
-                nam = BronxNamelistAdapter(ingredient, macros=self.macros)
+                if ingredient.endswith('.yaml'):
+                    #case where initial is not a namelist but a recipe
+                    from .util import compose_namelist
+                    nam=compose_namelist(ingredient,returnNamelist=True)
+                else:
+                    nam = BronxNamelistAdapter(ingredient, macros=self.macros)
             elif isinstance(ingredient, dict):
                 # internal dict/yaml namelist
                 nam = BronxNamelistAdapter(io.StringIO(), macros=self.macros)
